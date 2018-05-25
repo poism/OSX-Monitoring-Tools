@@ -7,6 +7,11 @@
 #   Additional Code by:
 #   Dan Barrett
 #   http://yesdevnull.net
+#   Sangpo Dorje
+#   http://poism.com
+
+#   v1.3 - 25 May 2018
+#   Make version checking work 10.10+
 
 #   v1.2 - 21 Nov 2013
 #   Updated with support for OS X Mavericks (10.9)
@@ -54,11 +59,23 @@ then
 fi
 
 # Check to see if we're running Mavericks as Time Machine runs a little differently
-osVersion=`sw_vers -productVersion | grep -E -o "[0-9]+\.[0-9]"`
-isMavericks=`echo $osVersion '< 10.9' | bc -l`
 
-if [ $isMavericks -eq 0 ]
-then
+osVersion=`sw_vers -productVersion`
+function isAtLeastVersion() {
+	osMajorMin=$1
+	osMinorMin=$2
+	osMajorVersion=`echo $osVersion | awk -F'.' {'print $1'}`
+	osMinorVersion=`echo $osVersion | awk -F'.' {'print $2'}`
+	osMajor=`echo $osMajorVersion "< $osMajorMin" | bc -l`
+	osMinor=`echo $osMinorVersion "< $osMinorMin" | bc -l`
+	if [ $osMajor -eq 0 ] && [ $osMinor -eq 0 ]; then
+		true
+	else
+		false
+	fi
+}
+
+if isAtLeastVersion 10 9; then
     # 10.9+ Check
     lastBackupDateString=`tmutil latestbackup | grep -E -o "[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{6}"`
 
